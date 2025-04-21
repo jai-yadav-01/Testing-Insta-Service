@@ -1,3 +1,5 @@
+// Instagram API Response Types
+
 // User profile info response
 export interface InstagramUserResponse {
   data: {
@@ -54,4 +56,32 @@ export interface InstaReelsResponse {
     cursor: string | null;
     hasNextPage: boolean;
   };
+}
+
+// Proxy configuration
+export interface ProxyConfig {
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  country?: string;
+  city?: string;
+  consecutiveFailures?: number;
+  lastUsed?: Date;
+  lastChecked?: Date;
+  working?: boolean;
+}
+
+// Proxy test result
+export interface ProxyTestResult {
+  proxy: ProxyConfig;
+  working: boolean;
+  responseTime?: number;
+}
+
+// Session data structure
+export interface SessionData {
+  cookies: string;
+  csrfToken: string;
+  lastUsed: Date;
 }

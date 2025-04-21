@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
-import InstagramService from '../services/instagram.service';
+import instagramService from '../services/instagram.service';
+import { ProxyTestResult } from '../types/index';
 
 class InstagramController {
   /**
    * Get Instagram reels for a specific username
    * @route GET /instagram/reels/:username
    */
-  async getReels(req: Request, res: Response): Promise<void> {
+  public async getReels(req: Request, res: Response): Promise<void> {
     try {
       const { username } = req.params;
       const { cursor } = req.query;
@@ -20,8 +21,10 @@ class InstagramController {
         return;
       }
 
+      console.log(`API Request: Fetching reels for username: ${username}, cursor: ${cursor || 'none'}`);
+
       // Get reels from service
-      const reelsData = await InstagramService.fetchPublicInstagramReels(
+      const reelsData = await instagramService.fetchPublicInstagramReels(
         username,
         cursor as string || null
       );
@@ -29,7 +32,7 @@ class InstagramController {
       // Return successful response
       res.status(200).json(reelsData);
     } catch (error: any) {
-      console.error('Error in Instagram controller:', error);
+      console.error('Error in Instagram controller:', error.message);
       
       // Handle specific error cases
       if (error.message.includes('private')) {
@@ -48,6 +51,14 @@ class InstagramController {
         return;
       }
       
+      if (error.message.includes('rate limit') || error.message.includes('wait')) {
+        res.status(429).json({
+          success: false,
+          message: 'Instagram API rate limit reached. Please try again later.'
+        });
+        return;
+      }
+      
       // Generic error response
       res.status(500).json({
         success: false,
@@ -60,14 +71,14 @@ class InstagramController {
    * Test proxy connections
    * @route GET /instagram/test-proxies
    */
-  async testProxies(req: Request, res: Response): Promise<void> {
+  public async testProxies(req: Request, res: Response): Promise<void> {
     try {
-      const results = await InstagramService.testProxies();
+      const results = await instagramService.testProxies();
       
       const summary = {
         total: results.length,
-        working: results.filter(r => r.working).length,
-        nonWorking: results.filter(r => !r.working).length
+        working: results.filter((r: ProxyTestResult) => r.working).length,
+        nonWorking: results.filter((r: ProxyTestResult) => !r.working).length
       };
       
       res.status(200).json({
@@ -76,7 +87,7 @@ class InstagramController {
         results
       });
     } catch (error: any) {
-      console.error('Error testing proxies:', error);
+      console.error('Error testing proxies:', error.message);
       res.status(500).json({
         success: false,
         message: 'Failed to test proxies'

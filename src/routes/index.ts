@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import InstagramController from '../controllers/instagram.controller';
+import instagramController from '../controllers/instagram.controller';
 
 const router = Router();
 
 // Instagram reels routes
-router.get('/reels/:username', InstagramController.getReels);
+router.get('/reels/:username', instagramController.getReels);
 
 // Utility routes
-router.get('/test-proxies', InstagramController.testProxies);
+router.get('/test-proxies', instagramController.testProxies);
 
 export default router;
