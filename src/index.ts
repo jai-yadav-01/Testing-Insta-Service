@@ -1,18 +1,14 @@
 import express from 'express';
 import cors from 'cors';
-import morgan from 'morgan';
-import helmet from 'helmet';
-import config from './config';
 import instagramRoutes from './routes/index';
 import InstagramService from './services/instagram.service';
 
 // Initialize Express app
 const app = express();
+const PORT = process.env.PORT || 4000;
 
 // Middleware
 app.use(cors());
-app.use(helmet());
-app.use(morgan('combined'));
 app.use(express.json());
 
 // Routes
@@ -32,16 +28,21 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// Start server
-const PORT = config.server.port;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  
-  // Test proxies on startup
-  if (config.instagram.useProxy) {
+// If running in local environment, start the server
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    
+    // Test proxies on startup
     console.log('Testing proxy connections...');
     InstagramService.testProxies()
-      .then(() => console.log('Proxy test completed'))
+      .then(results => {
+        const working = results.filter(r => r.working).length;
+        console.log(`Proxy test completed: ${working}/${results.length} proxies working`);
+      })
       .catch(err => console.error('Proxy test failed:', err));
-  }
-});
+  });
+}
+
+// Export app for Vercel
+export default app;
