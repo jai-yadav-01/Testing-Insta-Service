@@ -1,17 +1,32 @@
-import dotenv from 'dotenv';
-
-dotenv.config();
+// Configuration for the Instagram service
 
 const config = {
-  // Server configuration
-  port: parseInt(process.env.PORT || '4000'),
-  
-  // Instagram API configuration
+  server: {
+    port: process.env.PORT || 4000,
+    host: process.env.HOST || 'localhost'
+  },
   instagram: {
-    userAgent: process.env.INSTAGRAM_USER_AGENT || 'Instagram 219.0.0.12.117 Android',
-    appId: process.env.INSTAGRAM_APP_ID || '936619743392459',
-    apiBaseUrl: process.env.INSTAGRAM_API_BASE_URL || 'https://i.instagram.com/api/v1',
-    mediaCount: parseInt(process.env.MEDIA_COUNT || '8'),
+    // Instagram API configuration
+    apiBaseUrl: 'https://i.instagram.com/api/v1',
+    appId: '936619743392459', // Instagram Web App ID
+    mediaCount: 8, // Number of media items to fetch per request
+    
+    // Proxy configuration
+    useProxy: true,
+    proxyRotation: true,
+    proxyRetries: 3,
+    
+    // Rate limiting
+    requestDelay: 1000, // Milliseconds to wait between requests
+    maxConcurrentRequests: 2
+  },
+  cache: {
+    enabled: true,
+    ttl: 3600 // Cache time-to-live in seconds (1 hour)
+  },
+  logging: {
+    level: process.env.LOG_LEVEL || 'info',
+    format: 'json'
   }
 };
 

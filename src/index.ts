@@ -1,45 +1,47 @@
-import express, { Application } from 'express';
+import express from 'express';
 import cors from 'cors';
-import routes from './routes';
+import morgan from 'morgan';
+import helmet from 'helmet';
 import config from './config';
+import instagramRoutes from './routes/index';
+import InstagramService from './services/instagram.service';
 
-class Server {
-  private app: Application;
-  private readonly PORT: number;
+// Initialize Express app
+const app = express();
 
-  constructor() {
-    this.app = express();
-    this.PORT = config.port;
-    
-    this.setupMiddleware();
-    this.setupRoutes();
+// Middleware
+app.use(cors());
+app.use(helmet());
+app.use(morgan('combined'));
+app.use(express.json());
+
+// Routes
+app.use('/instagram', instagramRoutes);
+
+// Health check endpoint
+app.get('/health', (_, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+// Error handling middleware
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error'
+  });
+});
+
+// Start server
+const PORT = config.server.port;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  
+  // Test proxies on startup
+  if (config.instagram.useProxy) {
+    console.log('Testing proxy connections...');
+    InstagramService.testProxies()
+      .then(() => console.log('Proxy test completed'))
+      .catch(err => console.error('Proxy test failed:', err));
   }
-
-  private setupMiddleware(): void {
-    this.app.use(cors());
-    this.app.use(express.json({ limit: '50mb' }));
-    this.app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-  }
-
-  private setupRoutes(): void {
-    this.app.use('/instagram', routes);
-  }
-
-  public async start(): Promise<void> {
-    try {
-      // Start Express server
-      this.app.listen(this.PORT, () => {
-        console.log(`Server running on port ${this.PORT}`);
-      });
-    } catch (error) {
-      console.error('Failed to start server:', error);
-      process.exit(1);
-    }
-  }
-}
-
-// Create and start server
-new Server().start().catch(err => {
-  console.error('Failed to start server:', err);
-  process.exit(1);
 });

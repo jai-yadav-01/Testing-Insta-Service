@@ -1,64 +1,57 @@
-export interface MediaNode {
-  id: string;
-  code: string;
-  originalUrl: string | null;
-}
-
-export interface PageInfo {
-  cursor: string | null;
-  hasNextPage: boolean;
-}
-
-export interface InstaReelsResponse {
-  nodes: MediaNode[];
-  pageInfo: PageInfo;
-}
-
-// Instagram API response types
+// User profile info response
 export interface InstagramUserResponse {
   data: {
     user: {
       id: string;
       username: string;
+      full_name: string;
       is_private: boolean;
+      profile_pic_url: string;
     };
+    status: string;
   };
 }
 
-export interface InstagramMediaItem {
-  id?: string;
-  code?: string;
-  shortcode?: string;
-  is_video?: boolean;
-  media_type?: number;
-  video_versions?: {
-    url: string;
-    width: number;
-    height: number;
-  }[];
-  video_url?: string;
-  dimensions?: {
-    width: number;
-    height: number;
-  };
-  original_width?: number;
-  original_height?: number;
-  caption?: {
-    text: string;
-  };
-  edge_media_to_caption?: {
-    edges: {
-      node: {
-        text: string;
-      };
-    }[];
-  };
-  user?: {
-    pk: string;
-  };
-}
-
+// Media response for user feed
 export interface InstagramMediaResponse {
   items: InstagramMediaItem[];
+  num_results: number;
+  more_available: boolean;
   next_max_id?: string;
+  status: string;
+}
+
+// Individual media item
+export interface InstagramMediaItem {
+  id: string;
+  code?: string;
+  shortcode?: string;
+  media_type?: number; // 1 for image, 2 for video
+  is_video?: boolean;
+  video_url?: string;
+  video_versions?: {
+    type: number;
+    width: number;
+    height: number;
+    url: string;
+    id: string;
+  }[];
+  user?: {
+    pk: string;
+    username: string;
+    full_name: string;
+  };
+}
+
+// Our structured response format for reels
+export interface InstaReelsResponse {
+  nodes: {
+    id: string;
+    code: string;
+    originalUrl: string | null;
+  }[];
+  pageInfo: {
+    cursor: string | null;
+    hasNextPage: boolean;
+  };
 }

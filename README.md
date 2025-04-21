@@ -87,7 +87,6 @@ All Instagram API constants are configurable via environment variables:
 INSTAGRAM_USER_AGENT - User agent to use for Instagram API requests
 INSTAGRAM_APP_ID - Instagram App ID for API requests
 INSTAGRAM_API_BASE_URL - Base URL for Instagram API
-CDN_BASE_URL - Base URL for CDN references
 MEDIA_COUNT - Number of media items to fetch per request
 ```
 
